@@ -74,22 +74,22 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AnimateTimeScale: 1
+    - _AnimateTimeScale: 0
     - _BUILTIN_QueueControl: 0
     - _BUILTIN_QueueOffset: 0
     - _BumpScale: 1
     - _ColourNoiseScale: 50
-    - _ColourTiling: 2
+    - _ColourTiling: 0.73
     - _ColourTimeScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DisplacementMultiplier: 0.05
     - _DisplacementNoiseScale: 50
-    - _DisplacementTiling: 5
+    - _DisplacementTiling: 5.28
     - _DisplacementTimeScale: 1
     - _DstBlend: 0
     - _FingerprintNoiseScale: 4
-    - _FingerprintStrengthMultiplier: 0.3
+    - _FingerprintStrengthMultiplier: 0.4
     - _FingerprintTiling: 1
     - _FingerprintTimeScale: 0.1
     - _FingreprintTiling: 1
@@ -102,7 +102,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessClamp: 0.5
-    - _SmoothnessMultiplier: 0.3
+    - _SmoothnessMultiplier: 0.87
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -113,5 +113,5 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FingerprintTiling: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _MainColour: {r: 0.7529412, g: 0.4316026, b: 0.145098, a: 1}
-    - _SecondaryColour: {r: 0.7169812, g: 0.4025621, b: 0.1251335, a: 1}
+    - _SecondaryColour: {r: 0.7058824, g: 0.41341293, b: 0.15686274, a: 1}
   m_BuildTextureStacks: []
