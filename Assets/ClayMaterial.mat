@@ -74,6 +74,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AnimateTimeScale: 1
     - _BUILTIN_QueueControl: 0
     - _BUILTIN_QueueOffset: 0
     - _BumpScale: 1
@@ -88,7 +89,8 @@ Material:
     - _DisplacementTimeScale: 1
     - _DstBlend: 0
     - _FingerprintNoiseScale: 4
-    - _FingerprintStrengthMultiplier: 0.005
+    - _FingerprintStrengthMultiplier: 0.3
+    - _FingerprintTiling: 1
     - _FingerprintTimeScale: 0.1
     - _FingreprintTiling: 1
     - _GlossMapScale: 1
