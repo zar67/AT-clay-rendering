@@ -10,20 +10,20 @@ struct PBRData
     float3 WorldViewDirection;
     
     float3 Albedo;
-    float Smoothness;
+    float Roughness;
+    float BaseReflectivity;
 };
 
 float DistributionGGX(float3 surfaceNormal, float3 halfwayVector, float roughness)
 {
     float roughnessSquared = roughness * roughness;
-    float roughnessSquaredSquared = roughnessSquared * roughnessSquared;
     float normalDotHalfway = dot(surfaceNormal, halfwayVector);
     float normalDotHalfwaySquared = normalDotHalfway * normalDotHalfway;
     
-    float denominator = normalDotHalfwaySquared * (roughnessSquaredSquared - 1) + 1;
+    float denominator = normalDotHalfwaySquared * (roughnessSquared - 1) + 1;
     denominator = 3.14159265359 * denominator * denominator;
     
-    return roughnessSquaredSquared / max(denominator, 0.0000001);
+    return roughnessSquared / max(denominator, 0.0000001);
 }
 
 float FresnelSchlick(float3 halfwayVector, float3 viewDirection, float baseReflectivity)
@@ -34,7 +34,7 @@ float FresnelSchlick(float3 halfwayVector, float3 viewDirection, float baseRefle
 
 float GeometrySchlickGGX(float3 surfaceNormal, float3 viewDirection, float3 lightDirection, float roughness)
 {
-    float remappedRoughness = ((roughness + 1) * (roughness + 1)) / 8;
+    float remappedRoughness = ((roughness + 1.0) * (roughness + 1.0)) / 8.0;
     float normalDotView = dot(surfaceNormal, viewDirection);
     float normalDotLightDirection = dot(surfaceNormal, lightDirection);
     float inverseRoughness = 1 - remappedRoughness;
@@ -48,9 +48,9 @@ float3 PBRCalculation(PBRData data, float3 lightDirection, float3 lightColour, f
     
     float3 radiance = lightColour * lightDistanceAttenuation;
     
-    float D = DistributionGGX(data.WorldNormal, H, data.Smoothness);
-    float G = GeometrySchlickGGX(data.WorldNormal, data.WorldViewDirection, lightDirection, data.Smoothness);
-    float F = FresnelSchlick(H, data.WorldViewDirection, 0.02);
+    float D = DistributionGGX(data.WorldNormal, H, data.Roughness);
+    float G = GeometrySchlickGGX(data.WorldNormal, data.WorldViewDirection, lightDirection, data.Roughness);
+    float F = FresnelSchlick(H, data.WorldViewDirection, data.BaseReflectivity);
     
     float specular = D * F * G;
     specular /= 4 * dot(data.WorldViewDirection, data.WorldNormal * dot(lightDirection, data.WorldNormal));
@@ -90,7 +90,8 @@ void CalculateCustomPBR_float(float3 ambientColour, float3 worldPosition, float3
     data.WorldNormal = worldNormal;
     data.WorldViewDirection = worldViewDirection;
     data.Albedo = albedo;
-    data.Smoothness = smoothness;
+    data.Roughness = 1 - smoothness;
+    data.BaseReflectivity = 0.04;
     
     colour = CalculateCustomPBR(data);
 }
