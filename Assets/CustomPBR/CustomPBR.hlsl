@@ -3,6 +3,8 @@
 
 struct PBRData
 {
+    float3 AmbientColour;
+    
     float3 WorldPosition;
     float3 WorldNormal;
     float3 WorldViewDirection;
@@ -40,25 +42,23 @@ float GeometrySchlickGGX(float3 surfaceNormal, float3 viewDirection, float3 ligh
     return normalDotView / (normalDotView * inverseRoughness + remappedRoughness);
 }
 
-#ifndef SHADERGRAPH_PREVIEW
-float3 PBRCalculation(PBRData data, Light light)
+float3 PBRCalculation(PBRData data, float3 lightDirection, float3 lightColour, float lightDistanceAttenuation)
 {
-    float3 H = normalize(data.WorldViewDirection + light.direction);
+    float3 H = normalize(data.WorldViewDirection + lightDirection);
     
-    float3 radiance = light.color * light.distanceAttenuation;
+    float3 radiance = lightColour * lightDistanceAttenuation;
     
     float D = DistributionGGX(data.WorldNormal, H, data.Smoothness);
-    float G = GeometrySchlickGGX(data.WorldNormal, data.WorldViewDirection, light.direction, data.Smoothness);
+    float G = GeometrySchlickGGX(data.WorldNormal, data.WorldViewDirection, lightDirection, data.Smoothness);
     float F = FresnelSchlick(H, data.WorldViewDirection, 0.02);
     
     float specular = D * F * G;
-    specular /= 4 * dot(data.WorldViewDirection, data.WorldNormal * dot(light.direction, data.WorldNormal));
+    specular /= 4 * dot(data.WorldViewDirection, data.WorldNormal * dot(lightDirection, data.WorldNormal));
 
     float diffuseAmount = 1 - F;
     
-    return ((diffuseAmount * (data.Albedo / 3.14159265359)) + specular) * radiance * dot(data.WorldNormal, light.direction);
+    return ((diffuseAmount * (data.Albedo / 3.14159265359)) + specular) * radiance * dot(data.WorldNormal, lightDirection);
 }
-#endif
 
 float3 CalculateCustomPBR(PBRData data)
 {
@@ -66,28 +66,26 @@ float3 CalculateCustomPBR(PBRData data)
 #ifndef SHADERGRAPH_PREVIEW
     Light mainLight = GetMainLight();
     
-    float3 Lo = PBRCalculation(data, mainLight);
+    float3 Lo = PBRCalculation(data, mainLight.direction, mainLight.color, mainLight.distanceAttenuation);
    
     uint numAdditionalLights = GetAdditionalLightsCount();
     for (uint index = 0; index < numAdditionalLights; index++ )
     {
         Light light = GetAdditionalLight(index, data.WorldPosition, 1);
-        Lo += PBRCalculation(data, light);
+        Lo += PBRCalculation(data, light.direction, light.color, light.distanceAttenuation);
     }
     
-    float3 ambient = float3(0.03, 0.03, 0.03) * data.Albedo;
+    float3 ambient = data.AmbientColour * data.Albedo;
     colour = ambient + Lo;
-    
-    colour = colour / (colour + float3(1.0, 1.0, 1.0));
-    colour = pow(colour, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
     
 #endif
     return colour;
 }
 
-void CalculateCustomPBR_float(float3 worldPosition, float3 worldNormal, float3 worldViewDirection, float3 albedo, float smoothness, out float3 colour)
+void CalculateCustomPBR_float(float3 ambientColour, float3 worldPosition, float3 worldNormal, float3 worldViewDirection, float3 albedo, float smoothness, out float3 colour)
 {
     PBRData data;
+    data.AmbientColour = ambientColour;
     data.WorldPosition = worldPosition;
     data.WorldNormal = worldNormal;
     data.WorldViewDirection = worldViewDirection;
