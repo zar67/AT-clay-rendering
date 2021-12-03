@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ClayMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: 43c5294b7cc61a747aaa1766e82bb43a, type: 3}
+  m_Name: InitialClayMaterial
+  m_Shader: {fileID: -6465566751694194690, guid: 71dc280f7a8283c42b14dbc5581df717, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -72,9 +72,21 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AnimateTimeScale: 0
+    - _AnimateTimeScale: 1
     - _BUILTIN_QueueControl: 0
     - _BUILTIN_QueueOffset: 0
     - _BumpScale: 1
@@ -85,11 +97,11 @@ Material:
     - _DetailNormalMapScale: 1
     - _DisplacementMultiplier: 0.05
     - _DisplacementNoiseScale: 50
-    - _DisplacementTiling: 5.28
+    - _DisplacementTiling: 1
     - _DisplacementTimeScale: 1
     - _DstBlend: 0
     - _FingerprintNoiseScale: 4
-    - _FingerprintStrengthMultiplier: 0.4
+    - _FingerprintStrengthMultiplier: 0.3
     - _FingerprintTiling: 1
     - _FingerprintTimeScale: 0.1
     - _FingreprintTiling: 1
@@ -101,8 +113,10 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _QueueControl: 0
+    - _QueueOffset: 0
     - _SmoothnessClamp: 0.5
-    - _SmoothnessMultiplier: 0.87
+    - _SmoothnessMultiplier: 0.7
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -115,3 +129,16 @@ Material:
     - _MainColour: {r: 0.7529412, g: 0.4316026, b: 0.145098, a: 1}
     - _SecondaryColour: {r: 0.7058824, g: 0.41341293, b: 0.15686274, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &7973125101271838025
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 5
