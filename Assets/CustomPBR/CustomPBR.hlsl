@@ -1,6 +1,8 @@
 #ifndef CUSTOM_PBR_INCLUDED
 #define CUSTOM_PBR_INCLUDED
 
+static const float PI = 3.14159265f;
+
 struct PBRData
 {
     float3 AmbientColour;
@@ -21,7 +23,7 @@ float DistributionGGX(float3 surfaceNormal, float3 halfwayVector, float roughnes
     float normalDotHalfwaySquared = normalDotHalfway * normalDotHalfway;
     
     float denominator = normalDotHalfwaySquared * (roughnessSquared - 1) + 1;
-    denominator = 3.14159265359 * denominator * denominator;
+    denominator = PI * denominator * denominator;
     
     return roughnessSquared / max(denominator, 0.0000001);
 }
@@ -57,7 +59,7 @@ float3 PBRCalculation(PBRData data, float3 lightDirection, float3 lightColour, f
 
     float diffuseAmount = 1 - F;
     
-    return ((diffuseAmount * (data.Albedo / 3.14159265359)) + specular) * radiance * dot(data.WorldNormal, lightDirection);
+    return ((diffuseAmount * (data.Albedo / PI)) + specular) * radiance * dot(data.WorldNormal, lightDirection);
 }
 
 float3 CalculateCustomPBR(PBRData data)
