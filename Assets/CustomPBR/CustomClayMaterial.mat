@@ -43,6 +43,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _FingerprintTexture:
+        m_Texture: {fileID: 2800000, guid: 35ec27820cb01d04a96494fa0748b00e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -78,19 +82,28 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
+    - _AnimateTimeScale: 1
     - _Blend: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
+    - _ColourNoiseScale: 50
+    - _ColourTiling: 0.73
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _DisplacementMultiplier: 0.05
+    - _DisplacementNoiseScale: 50
+    - _DisplacementTiling: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
+    - _FingerprintStrengthMultiplier: 0.3
+    - _FingerprintTiling: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _HardEdges: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -98,6 +111,7 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Smoothness: 0
+    - _SmoothnessMultiplier: 0.7
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -109,6 +123,8 @@ Material:
     - _BaseColour: {r: 1, g: 0.52990127, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _MainColour: {r: 0.7529412, g: 0.4316026, b: 0.145098, a: 1}
+    - _SecondaryColour: {r: 0.7058824, g: 0.4117647, b: 0.15686275, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6650860023371319432
