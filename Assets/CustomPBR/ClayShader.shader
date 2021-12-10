@@ -105,7 +105,9 @@ Shader "Custom/ClayShader"
 
                 float diffuseAmount = 1.0f - F;
 
-                float3 mainColour = ((diffuseAmount * (_Color / PI)) + specular) * radiance * dot(N, L);
+                float3 ambient = UNITY_LIGHTMODEL_AMBIENT;
+
+                float3 mainColour = ambient + (diffuseAmount + specular) * radiance * dot(N, L);
                 return float4(mainColour, 1.0f);
             }
             ENDCG
