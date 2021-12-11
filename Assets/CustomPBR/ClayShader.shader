@@ -3,6 +3,7 @@ Shader "Custom/ClayShader"
     Properties
     {
         _Roughness("Roughness", Range(0,1)) = 0.5
+        _BaseReflectivity("Base Reflectivity", Range(0,1)) = 0.5
         _Color("Color", Color) = (1,0.2,0,1)
     }
         SubShader
@@ -21,14 +22,15 @@ Shader "Custom/ClayShader"
             struct Input
             {
                 float2 UV : TEXCOORD0;
-                fixed4 Albedo : COLOR0;
+                fixed4 Albedo : ALBEDO;
                 float4 Position : SV_POSITION;
                 float3 Normal : NORMAL;
-                float3 ViewDirection : COLOR2;
-                float3 LightDirection : COLOR3;
+                float3 ViewDirection : VIEWDIRECTION;
+                float3 LightDirection : LIGHTDIRECTION;
             };
 
             float4 _Color;
+            float _BaseReflectivity;
             float _Roughness;
 
             static const float PI = 3.14159265f;
@@ -63,23 +65,23 @@ Shader "Custom/ClayShader"
                 float denominator = normalDotHalfwaySquared * (roughnessSquared - 1.0f) + 1.0f;
                 denominator = PI * denominator * denominator;
 
-                return roughnessSquared / max(denominator, 0.0000001);
+                return roughnessSquared / max(denominator, 0.0000001f);
             }
 
             float GeometrySchlickGGX(float3 surfaceNormal, float3 viewDirection, float roughness)
             {
-                float remappedRoughness = ((roughness + 1.0) * (roughness + 1.0)) / 8.0;
+                float remappedRoughness = ((roughness + 1.0f) * (roughness + 1.0f)) / 8.0f;
                 float normalDotView = max(0.0f, dot(surfaceNormal, viewDirection));
-                float inverseRoughness = 1 - remappedRoughness;
+                float inverseRoughness = 1.0f - remappedRoughness;
 
                 return normalDotView / (normalDotView * inverseRoughness + remappedRoughness);
             }
 
             float FresnelSchlick(float3 halfwayVector, float3 viewDirection, float baseReflectivity)
             {
-                float inverseReflectivity = 1 - baseReflectivity;
+                float inverseReflectivity = 1.0f - baseReflectivity;
                 float halfwayDotView = max(0.0f, dot(halfwayVector, viewDirection));
-                return baseReflectivity + (inverseReflectivity * pow(1.0 - halfwayDotView, 5));
+                return baseReflectivity + (inverseReflectivity * pow(1.0f - halfwayDotView, 5));
             }
 
             float4 FragmentFunction(Input input) : SV_Target
@@ -90,10 +92,10 @@ Shader "Custom/ClayShader"
 
                 float3 H = normalize(L + V);
 
-                float3 F0 = float3(0.04, 0.04, 0.04);
+                float3 F0 = float3(_BaseReflectivity, _BaseReflectivity, _BaseReflectivity);
 
                 float distance = length(input.LightDirection - input.Position);
-                float attenuation = 1.0 / distance * distance;
+                float attenuation = 1.0f / distance * distance;
                 float3 radiance = input.Albedo * attenuation;
 
                 float D = DistributionGGX(N, H, _Roughness);
@@ -105,7 +107,7 @@ Shader "Custom/ClayShader"
 
                 float diffuseAmount = 1.0f - F;
 
-                float3 ambient = UNITY_LIGHTMODEL_AMBIENT;
+                float3 ambient = UNITY_LIGHTMODEL_AMBIENT * input.Albedo;
 
                 float3 mainColour = ambient + (diffuseAmount + specular) * radiance * dot(N, L);
                 return float4(mainColour, 1.0f);

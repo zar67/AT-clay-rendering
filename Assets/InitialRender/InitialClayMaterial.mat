@@ -126,8 +126,8 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FingerprintTiling: {r: 0.5, g: 0.5, b: 0, a: 0}
-    - _MainColour: {r: 0.7529412, g: 0.4316026, b: 0.145098, a: 1}
-    - _SecondaryColour: {r: 0.7058824, g: 0.41341293, b: 0.15686274, a: 1}
+    - _MainColour: {r: 0.5, g: 0.28456074, b: 0.09276727, a: 1}
+    - _SecondaryColour: {r: 0.5283019, g: 0.31915268, b: 0.13789009, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &7973125101271838025
 MonoBehaviour:
