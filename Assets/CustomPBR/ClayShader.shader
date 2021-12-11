@@ -82,11 +82,11 @@ Shader "Custom/ClayShader"
                 return GGX1 * GGX2;
             }
 
-            float FresnelSchlick(float3 halfwayVector, float3 viewDirection, float baseReflectivity)
+            float FresnelSchlick(float3 halfwayVector, float3 surfaceNormal, float baseReflectivity)
             {
                 float inverseReflectivity = 1.0f - baseReflectivity;
-                float halfwayDotView = max(0.0f, dot(halfwayVector, viewDirection));
-                return baseReflectivity + (inverseReflectivity * pow(1.0f - halfwayDotView, 5));
+                float halfwayDotNormal = max(0.0f, dot(halfwayVector, surfaceNormal));
+                return baseReflectivity + (inverseReflectivity * pow(1.0f - halfwayDotNormal, 5));
             }
 
             float4 FragmentFunction(Input input) : SV_Target
@@ -103,9 +103,9 @@ Shader "Custom/ClayShader"
                 float attenuation = 1.0f / distance * distance;
                 float3 radiance = input.Albedo * attenuation;
 
-                float D = DistributionGGX(N, H, _Roughness);
+                float D = DistributionGGX(N, normalize(L + N), _Roughness);
                 float G = GeometrySchlickGGX(N, L, V, _Roughness);
-                float3 F = FresnelSchlick(H, V, F0);
+                float3 F = FresnelSchlick(H, N, F0);
 
                 float specular = D * F * G;
                 specular /= 4.0f * dot(V, N) * dot(L, N);
