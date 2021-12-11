@@ -68,13 +68,18 @@ Shader "Custom/ClayShader"
                 return roughnessSquared / max(denominator, 0.0000001f);
             }
 
-            float GeometrySchlickGGX(float3 surfaceNormal, float3 viewDirection, float roughness)
+            float GeometrySchlickGGX(float3 surfaceNormal, float3 lightDirection, float3 viewDirection, float roughness)
             {
                 float remappedRoughness = ((roughness + 1.0f) * (roughness + 1.0f)) / 8.0f;
-                float normalDotView = max(0.0f, dot(surfaceNormal, viewDirection));
                 float inverseRoughness = 1.0f - remappedRoughness;
 
-                return normalDotView / (normalDotView * inverseRoughness + remappedRoughness);
+                float normalDotView = max(0.0f, dot(surfaceNormal, viewDirection));
+                float normalDotLight = max(0.0f, dot(surfaceNormal, lightDirection));
+
+                float GGX1 = normalDotView / (normalDotView * inverseRoughness + remappedRoughness);
+                float GGX2 = normalDotLight / (normalDotLight * inverseRoughness + remappedRoughness);
+
+                return GGX1 * GGX2;
             }
 
             float FresnelSchlick(float3 halfwayVector, float3 viewDirection, float baseReflectivity)
@@ -99,7 +104,7 @@ Shader "Custom/ClayShader"
                 float3 radiance = input.Albedo * attenuation;
 
                 float D = DistributionGGX(N, H, _Roughness);
-                float G = GeometrySchlickGGX(N, V, _Roughness);
+                float G = GeometrySchlickGGX(N, L, V, _Roughness);
                 float3 F = FresnelSchlick(H, V, F0);
 
                 float specular = D * F * G;
