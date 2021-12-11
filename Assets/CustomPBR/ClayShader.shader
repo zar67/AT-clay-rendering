@@ -108,9 +108,11 @@ Shader "Custom/ClayShader"
                 float3 F = FresnelSchlick(H, V, F0);
 
                 float specular = D * F * G;
-                specular /= 4.0f * dot(V, N * dot(L, N));
+                specular /= 4.0f * dot(V, N) * dot(L, N);
 
                 float diffuseAmount = 1.0f - F;
+
+                float3 diffuse = diffuseAmount * input.Albedo / PI;
 
                 float3 ambient = UNITY_LIGHTMODEL_AMBIENT * input.Albedo;
 
