@@ -25,8 +25,8 @@ Shader "Custom/ClayShader"
                 fixed4 Albedo : ALBEDO;
                 float4 Position : SV_POSITION;
                 float3 Normal : NORMAL;
-                float3 ViewDirection : VIEWDIRECTION;
-                float3 LightDirection : LIGHTDIRECTION;
+                float3 ViewDirection : VIEW_DIRECTION;
+                float3 LightDirection : LIGHT_DIRECTION;
             };
 
             float4 _Color;
@@ -35,25 +35,26 @@ Shader "Custom/ClayShader"
 
             static const float PI = 3.14159265f;
 
-            Input VertexFunction(appdata_base v)
+            Input VertexFunction(appdata_base data)
             {
-                Input o;
-                o.Position = UnityObjectToClipPos(v.vertex);
-                o.UV = v.texcoord;
+                Input output;
 
-                float3 worldPos = o.Position.xyz;
+                output.Position = UnityObjectToClipPos(data.vertex);
+                output.UV = data.texcoord;
+
+                float3 worldPos = output.Position.xyz;
                 float3 viewDir = normalize(_WorldSpaceCameraPos.xyz - worldPos.xyz);
-                o.ViewDirection = viewDir;
+                output.ViewDirection = viewDir;
 
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
-                o.LightDirection = lightDir;
+                output.LightDirection = lightDir;
 
-                half3 worldNormal = UnityObjectToWorldNormal(v.normal);
-                o.Normal = worldNormal;
+                half3 worldNormal = UnityObjectToWorldNormal(data.normal);
+                output.Normal = worldNormal;
 
-                o.Albedo = _Color;
+                output.Albedo = _Color;
 
-                return o;
+                return output;
             }
 
             float DistributionGGX(float3 surfaceNormal, float3 halfwayVector, float roughness)
@@ -89,7 +90,7 @@ Shader "Custom/ClayShader"
                 return baseReflectivity + (inverseReflectivity * pow(1.0f - halfwayDotNormal, 5));
             }
 
-            float4 FragmentFunction(Input input) : SV_Target
+            float3 CalculatePBRLighting(Input input)
             {
                 float3 N = normalize(input.Normal);
                 float3 V = normalize(input.ViewDirection);
@@ -116,7 +117,13 @@ Shader "Custom/ClayShader"
 
                 float3 ambient = UNITY_LIGHTMODEL_AMBIENT * input.Albedo;
 
-                float3 mainColour = ambient + (diffuseAmount + specular) * radiance * dot(N, L);
+                return ambient + (diffuseAmount + specular) * radiance * dot(N, L);
+            }
+
+            float4 FragmentFunction(Input input) : SV_Target
+            {
+                float3 mainColour = CalculatePBRLighting(input);
+
                 return float4(mainColour, 1.0f);
             }
             ENDCG
