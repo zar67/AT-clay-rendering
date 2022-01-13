@@ -38,6 +38,7 @@ Shader "Custom/ClayShader"
             float _LayerTwoRoughness;
 
             static const float PI = 3.14159265f;
+            static const float3 ABSORBTION_COEFFICIENT = float3(0.0035f, 0.0004f, 0.0f);
 
             Input VertexFunction(appdata_base data)
             {
@@ -101,62 +102,59 @@ Shader "Custom/ClayShader"
                 return albedo * attenuation;
             }
 
-            float3 TorranceSparrow(float NdotL, float NdotV, float NdotH, float VdotH, float3 n, float3 k, float m, out float3 F, out float G)
+            float3 TorranceSparrow(float NdotL, float NdotV, float NdotH, float VdotH, float3 normal, float3 reflectivity, float roughness, out float3 fresnel, out float geometry)
             {
-                float D;
                 float tg = sqrt(1 - NdotH * NdotH) / NdotH;
-                D = 1 / (m * m * NdotH * NdotH * NdotH * NdotH) * exp(-(tg / m) * (tg / m));
+                float distribution = 1 / (roughness * roughness * NdotH * NdotH * NdotH * NdotH) * exp(-(tg / roughness) * (tg / roughness));
 
                 float q = 1 - VdotH;
-                F = ((n - 1) * (n - 1) + 4 * n * q * q * q * q * q + k * k) / ((n + 1) * (n + 1) + k * k);
+                fresnel = ((normal - 1) * (normal - 1) + 4 * normal * q * q * q * q * q + reflectivity * reflectivity) / ((normal + 1) * (normal + 1) + reflectivity * reflectivity);
                 
-                G = min(1, min(NdotV * (2 * NdotH) / VdotH, NdotL * (2 * NdotH) / VdotH));
+                geometry = min(1, min(NdotV * (2 * NdotH) / VdotH, NdotL * (2 * NdotH) / VdotH));
                 
-                return F * D * G / (4 * NdotV);
+                return fresnel * distribution * geometry / (4 * NdotV);
             }
 
             float3 CalculatePBRLighting(Input input)
             {
-                float3 N = normalize(input.Normal);
-                float3 V = normalize(input.ViewDirection);
-                float3 L = normalize(input.LightDirection);
+                float3 surfaceNormal = normalize(input.Normal);
+                float3 viewDirection = normalize(input.ViewDirection);
+                float3 lightDirection = normalize(input.LightDirection);
 
-                float3 H = normalize(V + L);
+                float3 halfwayVector = normalize(viewDirection + lightDirection);
 
-                float3 R = reflect(-V, N);
-                float3 Lr = -refract(L, N, 1 / 1.3333f);
-                float3 Vr = -refract(V, N, 1 / 1.3333f);
-                float3 Hr = normalize(Vr + Lr);
+                float3 R = reflect(-viewDirection, surfaceNormal);
+                float3 refractedLightDirection = -refract(lightDirection, surfaceNormal, 1 / 1.3333f);
+                float3 refractedViewDirection = -refract(viewDirection, surfaceNormal, 1 / 1.3333f);
+                float3 refractedHalfwayVector = normalize(refractedViewDirection + refractedLightDirection);
 
-                float NdotL = dot(N, L);
-                float NdotH = dot(N, H);
-                float NdotV = dot(N, V);
-                float VdotH = dot(V, H);
-                float NdotLr = dot(N, Lr);
-                float NdotHr = dot(N, Hr);
-                float NdotVr = dot(N, Vr);
-                float VrdotHr = dot(Vr, Hr);
+                float NdotL = dot(surfaceNormal, lightDirection);
+                float NdotH = dot(surfaceNormal, halfwayVector);
+                float NdotV = dot(surfaceNormal, viewDirection);
+                float VdotH = dot(viewDirection, halfwayVector);
+                float NdotLr = dot(surfaceNormal, refractedLightDirection);
+                float NdotHr = dot(surfaceNormal, refractedHalfwayVector);
+                float NdotVr = dot(surfaceNormal, refractedViewDirection);
+                float VrdotHr = dot(refractedViewDirection, refractedHalfwayVector);
 
-                float3 F1, F2;
-                float G1, G2;
+                float3 layerOneFresnel, layerTwoFresnel;
+                float layerOneGeometry, layerTwoGeometry;
 
-                float3 f1 = TorranceSparrow(NdotL, NdotV, NdotH, VdotH, _BaseReflectivity, _BaseReflectivity, _LayerOneRoughness, F1, G1);
-                float3 f2 = TorranceSparrow(NdotLr, NdotVr, NdotHr, VrdotHr, _BaseReflectivity, _BaseReflectivity, max(_LayerTwoRoughness, _LayerOneRoughness), F2, G2);
+                float3 layerOneFr = TorranceSparrow(NdotL, NdotV, NdotH, VdotH, _BaseReflectivity, _BaseReflectivity, _LayerOneRoughness, layerOneFresnel, layerOneGeometry);
+                float3 layerTwoFr = TorranceSparrow(NdotLr, NdotVr, NdotHr, VrdotHr, _BaseReflectivity, _BaseReflectivity, max(_LayerTwoRoughness, _LayerOneRoughness), layerTwoFresnel, layerTwoGeometry);
                 
-                f2 += (1 - F2) * max(NdotL, 0) * input.Albedo;
+                layerTwoFr += (1 - layerTwoFresnel) * max(NdotL, 0) * input.Albedo;
 
-                float3 T12 = 1 - F1;
-                float3 T21 = T12;
-                float3 t = (1 - G1) + T21 * G1;
+                float3 layerOneDiffuse = 1 - layerOneFresnel;
+                float3 layerOneTotalReflection = (1 - layerOneGeometry) + layerOneDiffuse * layerOneGeometry;
 
-                float l = _LayerOneThickness * (1 / NdotLr + 1 / NdotVr);
-                float3 sigma = float3(0.0035f, 0.0004f, 0.0f);
-                float3 a = exp(-sigma * l);
+                float absorptionPathLength = _LayerOneThickness * (1 / NdotLr + 1 / NdotVr);
+                float3 absorption = exp(-ABSORBTION_COEFFICIENT * absorptionPathLength);
 
-                float3 envCol = UNITY_LIGHTMODEL_AMBIENT * input.Albedo;
+                float3 ambient = UNITY_LIGHTMODEL_AMBIENT * input.Albedo;
 
-                float3 fr = input.Albedo * (f1 + T12 * f2 * a * t);
-                return float4(fr + envCol, 1);
+                float3 finalColour = input.Albedo * (layerOneFr + layerOneDiffuse * layerTwoFr * absorption * layerOneTotalReflection);
+                return float4(finalColour + ambient, 1);
             }
 
             float4 FragmentFunction(Input input) : SV_Target
