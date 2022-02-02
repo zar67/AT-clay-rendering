@@ -40,6 +40,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: e7c0bf238f7bd5245bbae07439c0eb71, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _BumpTexture:
+        m_Texture: {fileID: 2800000, guid: 35ec27820cb01d04a96494fa0748b00e, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -102,12 +106,13 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
+    - _FingerprintStrength: 0.027
     - _GlossMapScale: 0
     - _Glossiness: 0.433
     - _GlossyReflections: 0
-    - _LayerOneRoughness: 0.679
-    - _LayerOneThickness: 0.4
-    - _LayerTwoRoughness: 0.753
+    - _LayerOneRoughness: 0.56
+    - _LayerOneThickness: 1
+    - _LayerTwoRoughness: 0.96
     - _Metalic: 0
     - _Metallic: 0
     - _OcclusionStrength: 1

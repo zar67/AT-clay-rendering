@@ -2,10 +2,12 @@ Shader "Custom/ClayShader"
 {
     Properties
     {
+        _BumpTexture("Texture", 2D) = "white" {}
         _LayerOneRoughness("LayerOneRoughness", Range(0,1)) = 0.5
         _LayerOneThickness("LayerOneThickness", Range(0,1)) = 0.5
         _LayerTwoRoughness("LayerTwoRoughness", Range(0,1)) = 0.5
         _BaseReflectivity("Base Reflectivity", Range(0,1)) = 0.5
+        _FingerprintStrength("Fingerprint Strength", Range(0,1)) = 0.5
         _Color("Color", Color) = (1,0.2,0,1)
     }
         SubShader
@@ -31,11 +33,15 @@ Shader "Custom/ClayShader"
                 float3 LightDirection : LIGHT_DIRECTION;
             };
 
+            sampler2D _BumpTexture;
+            float4 _BumpTexture_ST;
+
             float4 _Color;
             float _BaseReflectivity;
             float _LayerOneRoughness;
             float _LayerOneThickness;
             float _LayerTwoRoughness;
+            float _FingerprintStrength;
 
             static const float PI = 3.14159265f;
             static const float3 ABSORBTION_COEFFICIENT = float3(0.0035f, 0.0004f, 0.0f);
@@ -154,6 +160,11 @@ Shader "Custom/ClayShader"
                 float3 ambient = UNITY_LIGHTMODEL_AMBIENT * input.Albedo;
 
                 float3 finalColour = input.Albedo * (layerOneFr + layerOneDiffuse * layerTwoFr * absorption * layerOneTotalReflection);
+
+                float2 newUV = TRANSFORM_TEX(input.UV, _BumpTexture);
+                fixed4 col = tex2D(_BumpTexture, newUV) * _FingerprintStrength;
+                finalColour += col;
+
                 return float4(finalColour + ambient, 1);
             }
 
