@@ -4,7 +4,7 @@ Shader "Custom/ClayShader"
     {
         _BumpTexture("Texture", 2D) = "white" {}
         _LayerOneRoughness("LayerOneRoughness", Range(0,1)) = 0.5
-        _LayerOneThickness("LayerOneThickness", Range(0,1)) = 0.5
+        _LayerOneThickness("LayerOneThickness", Float) = 0.5
         _LayerTwoRoughness("LayerTwoRoughness", Range(0,1)) = 0.5
         _BaseReflectivity("Base Reflectivity", Range(0,1)) = 0.5
         _FingerprintStrength("Fingerprint Strength", Range(0,1)) = 0.5
