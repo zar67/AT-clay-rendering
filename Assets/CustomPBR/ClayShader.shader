@@ -2,13 +2,20 @@ Shader "Custom/ClayShader"
 {
     Properties
     {
-        _BumpTexture("Texture", 2D) = "white" {}
-        _LayerOneRoughness("LayerOneRoughness", Range(0,1)) = 0.5
-        _LayerOneThickness("LayerOneThickness", Float) = 0.5
-        _LayerTwoRoughness("LayerTwoRoughness", Range(0,1)) = 0.5
-        _BaseReflectivity("Base Reflectivity", Range(0,1)) = 0.5
-        _FingerprintStrength("Fingerprint Strength", Range(0,1)) = 0.5
+        [Header(Properties)]
         _Color("Color", Color) = (1,0.2,0,1)
+        _F0("Base Reflectivity", Range(0,1)) = 0.5
+
+        [Header(Top Layer)]
+        _L1Roughness("Roughness", Range(0,1)) = 0.5
+        _L1Thickness("Thickness", Range(0, 10)) = 0.5
+
+        [Header(Bottom Layer)]
+        _L2Roughness("Roughness", Range(0,1)) = 0.5
+
+        [Header(Bumps and Indents)]
+        _BumpTexture("Texture", 2D) = "white" {}
+        _FingerprintStrength("Fingerprint Strength", Range(0,1)) = 0.5
     }
         SubShader
     {
@@ -26,21 +33,22 @@ Shader "Custom/ClayShader"
             struct Input
             {
                 float2 UV : TEXCOORD0;
-                fixed4 Albedo : ALBEDO;
                 float4 Position : SV_POSITION;
                 float3 Normal : NORMAL;
                 float3 ViewDirection : VIEW_DIRECTION;
                 float3 LightDirection : LIGHT_DIRECTION;
             };
 
+            float4 _Color;
+            float _F0;
+
+            float _L1Roughness;
+            float _L1Thickness;
+
+            float _L2Roughness;
+
             sampler2D _BumpTexture;
             float4 _BumpTexture_ST;
-
-            float4 _Color;
-            float _BaseReflectivity;
-            float _LayerOneRoughness;
-            float _LayerOneThickness;
-            float _LayerTwoRoughness;
             float _FingerprintStrength;
 
             static const float PI = 3.14159265f;
@@ -63,49 +71,7 @@ Shader "Custom/ClayShader"
                 half3 worldNormal = UnityObjectToWorldNormal(data.normal);
                 output.Normal = worldNormal;
 
-                output.Albedo = _Color;
-
                 return output;
-            }
-
-            float DistributionGGX(float3 surfaceNormal, float3 halfwayVector, float roughness)
-            {
-                float roughnessSquared = roughness * roughness;
-                float normalDotHalfway = max(0.0f, dot(surfaceNormal, halfwayVector));
-                float normalDotHalfwaySquared = normalDotHalfway * normalDotHalfway;
-
-                float denominator = normalDotHalfwaySquared * (roughnessSquared - 1.0f) + 1.0f;
-                denominator = PI * denominator * denominator;
-
-                return roughnessSquared / max(denominator, 0.0000001f);
-            }
-
-            float GeometrySchlickGGX(float3 surfaceNormal, float3 lightDirection, float3 viewDirection, float roughness)
-            {
-                float remappedRoughness = ((roughness + 1.0f) * (roughness + 1.0f)) / 8.0f;
-                float inverseRoughness = 1.0f - remappedRoughness;
-
-                float normalDotView = max(0.0f, dot(surfaceNormal, viewDirection));
-                float normalDotLight = max(0.0f, dot(surfaceNormal, lightDirection));
-
-                float GGX1 = normalDotView / (normalDotView * inverseRoughness + remappedRoughness);
-                float GGX2 = normalDotLight / (normalDotLight * inverseRoughness + remappedRoughness);
-
-                return GGX1 * GGX2;
-            }
-
-            float FresnelSchlick(float3 halfwayVector, float3 viewDirection, float baseReflectivity)
-            {
-                float inverseReflectivity = 1.0f - baseReflectivity;
-                float halfwayDotNormal = max(0.0f, dot(halfwayVector, viewDirection));
-                return baseReflectivity + (inverseReflectivity * pow(1.0f - halfwayDotNormal, 5));
-            }
-
-            float3 CalculateRadiance(float3 lightDirection, float3 position, float3 albedo)
-            {
-                float distance = length(lightDirection - position);
-                float attenuation = 1.0f / distance * distance;
-                return albedo * attenuation;
             }
 
             float3 TorranceSparrow(float NdotL, float NdotV, float NdotH, float VdotH, float3 normal, float3 reflectivity, float roughness, out float3 fresnel, out float geometry)
@@ -123,47 +89,55 @@ Shader "Custom/ClayShader"
 
             float3 CalculatePBRLighting(Input input)
             {
-                float3 surfaceNormal = normalize(input.Normal);
-                float3 viewDirection = normalize(input.ViewDirection);
-                float3 lightDirection = normalize(input.LightDirection);
+                float3 N = normalize(input.Normal);
+                float3 V = normalize(input.ViewDirection);
+                float3 L = normalize(input.LightDirection);
 
-                float3 halfwayVector = normalize(viewDirection + lightDirection);
+                float3 H = normalize(V + L);
 
-                float3 R = reflect(-viewDirection, surfaceNormal);
-                float3 refractedLightDirection = -refract(lightDirection, surfaceNormal, 1 / 1.3333f);
-                float3 refractedViewDirection = -refract(viewDirection, surfaceNormal, 1 / 1.3333f);
-                float3 refractedHalfwayVector = normalize(refractedViewDirection + refractedLightDirection);
+                float3 R = reflect(-V, N);
+                float3 Lr = -refract(L, N, 1 / 1.3333f);
+                float3 Vr = -refract(V, N, 1 / 1.3333f);
+                float3 Hr = normalize(Vr + Lr);
 
-                float NdotL = dot(surfaceNormal, lightDirection);
-                float NdotH = dot(surfaceNormal, halfwayVector);
-                float NdotV = dot(surfaceNormal, viewDirection);
-                float VdotH = dot(viewDirection, halfwayVector);
-                float NdotLr = dot(surfaceNormal, refractedLightDirection);
-                float NdotHr = dot(surfaceNormal, refractedHalfwayVector);
-                float NdotVr = dot(surfaceNormal, refractedViewDirection);
-                float VrdotHr = dot(refractedViewDirection, refractedHalfwayVector);
+                float NdotL = dot(N, L);
+                float NdotH = dot(N, H);
+                float NdotV = dot(N, V);
+                float VdotH = dot(V, H);
+                float NdotLr = dot(N, Lr);
+                float NdotHr = dot(N, Hr);
+                float NdotVr = dot(N, Vr);
+                float VrdotHr = dot(Vr, Hr);
 
-                float3 layerOneFresnel, layerTwoFresnel;
-                float layerOneGeometry, layerTwoGeometry;
+                // Top Layer
+                float3 f1;
+                float g1;
+                float3 fr1 = TorranceSparrow(NdotL, NdotV, NdotH, VdotH, _F0, _F0, _L1Roughness, f1, g1);
 
-                float3 layerOneFr = TorranceSparrow(NdotL, NdotV, NdotH, VdotH, _BaseReflectivity, _BaseReflectivity, _LayerOneRoughness, layerOneFresnel, layerOneGeometry);
-                float3 layerTwoFr = TorranceSparrow(NdotLr, NdotVr, NdotHr, VrdotHr, _BaseReflectivity, _BaseReflectivity, max(_LayerTwoRoughness, _LayerOneRoughness), layerTwoFresnel, layerTwoGeometry);
-                
-                layerTwoFr += (1 - layerTwoFresnel) * max(NdotL, 0) * input.Albedo;
+                // Bottom Layer
+                float3 f2;
+                float g2;
+                float3 fr2 = TorranceSparrow(NdotLr, NdotVr, NdotHr, VrdotHr, _F0, _F0, _L2Roughness, f2, g2);
+                fr2 += (1 - f2) * max(NdotL, 0) * _Color;
 
-                float3 layerOneDiffuse = 1 - layerOneFresnel;
-                float3 layerOneTotalReflection = (1 - layerOneGeometry) + layerOneDiffuse * layerOneGeometry;
+                // Frensel Transmission and Internal Reflection
+                float3 t12 = 1 - f1;
+                float t21 = t12;
+                float3 t = (1 - g1) + t21 * g1;
 
-                float absorptionPathLength = _LayerOneThickness * (1 / NdotLr + 1 / NdotVr);
-                float3 absorption = exp(-ABSORBTION_COEFFICIENT * absorptionPathLength);
+                // Absorption
+                float l = _L1Thickness * (1 / NdotLr + 1 / NdotVr);
+                float3 a = exp(-ABSORBTION_COEFFICIENT * l);
 
-                float3 ambient = UNITY_LIGHTMODEL_AMBIENT * input.Albedo;
+                float3 finalColour = _Color * (fr1 + t12 * fr2 * a * t);
 
-                float3 finalColour = input.Albedo * (layerOneFr + layerOneDiffuse * layerTwoFr * absorption * layerOneTotalReflection);
-
+                // Fingerprints
                 float2 newUV = TRANSFORM_TEX(input.UV, _BumpTexture);
-                fixed4 col = tex2D(_BumpTexture, newUV) * _FingerprintStrength;
-                finalColour += col;
+                fixed4 fingerprints = tex2D(_BumpTexture, newUV) * _FingerprintStrength;
+                finalColour += fingerprints;
+
+                // Ambient
+                float3 ambient = UNITY_LIGHTMODEL_AMBIENT;
 
                 return float4(finalColour + ambient, 1);
             }

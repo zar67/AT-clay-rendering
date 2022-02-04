@@ -95,7 +95,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
-    - _BaseReflectivity: 0.46
+    - _BaseReflectivity: 0.21
     - _Blend: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
@@ -106,13 +106,19 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _FingerprintStrength: 0.027
+    - _F0: 0.23
+    - _FingerprintStrength: 0.03
     - _GlossMapScale: 0
     - _Glossiness: 0.433
     - _GlossyReflections: 0
-    - _LayerOneRoughness: 0.56
-    - _LayerOneThickness: 1
-    - _LayerTwoRoughness: 0.96
+    - _L1F0: 0.21
+    - _L1Roughness: 0.55
+    - _L1Thickness: 0.5
+    - _L2F0: 0.33
+    - _L2Roughness: 0.87
+    - _LayerOneRoughness: 1
+    - _LayerOneThickness: 100
+    - _LayerTwoRoughness: 0.29
     - _Metalic: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
@@ -129,7 +135,9 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.6784314, g: 0.6958143, b: 0.7058824, a: 1}
+    - _Color: {r: 0.58431375, g: 0.58431375, b: 0.58431375, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _L1Color: {r: 1, g: 0.019422375, b: 0, a: 1}
+    - _L2Color: {r: 0.17790854, g: 1, b: 0, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_BuildTextureStacks: []
