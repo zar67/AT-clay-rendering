@@ -74,15 +74,26 @@ Shader "Custom/ClayShader"
                 return output;
             }
 
-            float3 TorranceSparrow(float NdotL, float NdotV, float NdotH, float VdotH, float3 normal, float3 reflectivity, float roughness, out float3 fresnel, out float geometry)
+            float3 Fresnel(float VdotH, float3 normal, float3 reflectivity, float roughness)
+            {
+                float q = 1 - VdotH;
+                return ((normal - 1) * (normal - 1) + 4 * normal * q * q * q * q * q + reflectivity * reflectivity) / ((normal + 1) * (normal + 1) + reflectivity * reflectivity);
+            }
+
+            float Geometry(float NdotV, float NdotH, float VdotH, float NdotL)
+            {
+                return  min(1, min(NdotV * (2 * NdotH) / VdotH, NdotL * (2 * NdotH) / VdotH));
+            }
+
+            float3 TorranceSparrow(float NdotL, float NdotV, float NdotH, float VdotH, float3 normal, float3 reflectivity, float roughness)
             {
                 float tg = sqrt(1 - NdotH * NdotH) / NdotH;
                 float distribution = 1 / (roughness * roughness * NdotH * NdotH * NdotH * NdotH) * exp(-(tg / roughness) * (tg / roughness));
 
                 float q = 1 - VdotH;
-                fresnel = ((normal - 1) * (normal - 1) + 4 * normal * q * q * q * q * q + reflectivity * reflectivity) / ((normal + 1) * (normal + 1) + reflectivity * reflectivity);
-                
-                geometry = min(1, min(NdotV * (2 * NdotH) / VdotH, NdotL * (2 * NdotH) / VdotH));
+                float3 fresnel = Fresnel(VdotH, normal, reflectivity, roughness);
+
+                float geometry = Geometry(NdotV, NdotH, VdotH, NdotL);
                 
                 return fresnel * distribution * geometry / (4 * NdotV);
             }
@@ -110,14 +121,14 @@ Shader "Custom/ClayShader"
                 float VrdotHr = dot(Vr, Hr);
 
                 // Top Layer
-                float3 f1;
-                float g1;
-                float3 fr1 = TorranceSparrow(NdotL, NdotV, NdotH, VdotH, _F0, _F0, _L1Roughness, f1, g1);
+                float3 f1 = Fresnel(VdotH, _F0, _F0, _L1Roughness);
+                float g1 = Geometry(NdotV, NdotH, VdotH, NdotL);
+                float3 fr1 = TorranceSparrow(NdotL, NdotV, NdotH, VdotH, _F0, _F0, _L1Roughness);
 
                 // Bottom Layer
-                float3 f2;
-                float g2;
-                float3 fr2 = TorranceSparrow(NdotLr, NdotVr, NdotHr, VrdotHr, _F0, _F0, _L2Roughness, f2, g2);
+                float3 f2 = Fresnel(VrdotHr, _F0, _F0, _L2Roughness);
+                float g2 = Geometry(NdotVr, NdotHr, VrdotHr, NdotLr);
+                float3 fr2 = TorranceSparrow(NdotLr, NdotVr, NdotHr, VrdotHr, _F0, _F0, _L2Roughness);
                 fr2 += (1 - f2) * max(NdotL, 0) * _Color;
 
                 // Frensel Transmission and Internal Reflection

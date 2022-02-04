@@ -106,16 +106,16 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _F0: 0.23
+    - _F0: 0.28
     - _FingerprintStrength: 0.03
     - _GlossMapScale: 0
     - _Glossiness: 0.433
     - _GlossyReflections: 0
     - _L1F0: 0.21
-    - _L1Roughness: 0.55
-    - _L1Thickness: 0.5
+    - _L1Roughness: 0.51
+    - _L1Thickness: 2.1
     - _L2F0: 0.33
-    - _L2Roughness: 0.87
+    - _L2Roughness: 1
     - _LayerOneRoughness: 1
     - _LayerOneThickness: 100
     - _LayerTwoRoughness: 0.29
