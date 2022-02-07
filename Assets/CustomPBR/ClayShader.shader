@@ -3,7 +3,7 @@ Shader "Custom/ClayShader"
     Properties
     {
         [Header(Properties)]
-        _Color("Color", Color) = (1,0.2,0,1)
+        _BaseColour("Base Colour", 2D) = "white" {}
         _F0("Base Reflectivity", Range(0,1)) = 0.5
 
         [Header(Top Layer)]
@@ -13,9 +13,13 @@ Shader "Custom/ClayShader"
         [Header(Bottom Layer)]
         _L2Roughness("Roughness", Range(0,1)) = 0.5
 
-        [Header(Bumps and Indents)]
-        _BumpTexture("Texture", 2D) = "white" {}
+        [Header(Fingerprints)]
+        _FingerprintTexture("Fingerprint Texture", 2D) = "white" {}
         _FingerprintStrength("Fingerprint Strength", Range(0,1)) = 0.5
+
+        [Header(Bumps and Indents)]
+        _BumpMap("Bumpmap", 2D) = "bump" {}
+        _BumpStrength("Bump Strength", Range(0,1)) = 0.5
     }
         SubShader
     {
@@ -39,7 +43,9 @@ Shader "Custom/ClayShader"
                 float3 LightDirection : LIGHT_DIRECTION;
             };
 
-            float4 _Color;
+            sampler2D _BaseColour;
+            float4 _BaseColour_ST;
+
             float _F0;
 
             float _L1Roughness;
@@ -47,9 +53,13 @@ Shader "Custom/ClayShader"
 
             float _L2Roughness;
 
-            sampler2D _BumpTexture;
-            float4 _BumpTexture_ST;
+            sampler2D _FingerprintTexture;
+            float4 _FingerprintTexture_ST;
             float _FingerprintStrength;
+
+            sampler2D _BumpMap;
+            float4 _BumpMap_ST;
+            half _BumpStrength;
 
             static const float PI = 3.14159265f;
             static const float3 ABSORBTION_COEFFICIENT = float3(0.0035f, 0.0004f, 0.0f);
@@ -120,6 +130,10 @@ Shader "Custom/ClayShader"
                 float NdotVr = dot(N, Vr);
                 float VrdotHr = dot(Vr, Hr);
 
+                // Base Colour
+                float2 baseColourUV = TRANSFORM_TEX(input.UV, _BaseColour);
+                fixed4 baseColour = tex2D(_BaseColour, baseColourUV);
+
                 // Top Layer
                 float3 f1 = Fresnel(VdotH, _F0, _F0, _L1Roughness);
                 float g1 = Geometry(NdotV, NdotH, VdotH, NdotL);
@@ -129,7 +143,7 @@ Shader "Custom/ClayShader"
                 float3 f2 = Fresnel(VrdotHr, _F0, _F0, _L2Roughness);
                 float g2 = Geometry(NdotVr, NdotHr, VrdotHr, NdotLr);
                 float3 fr2 = TorranceSparrow(NdotLr, NdotVr, NdotHr, VrdotHr, _F0, _F0, _L2Roughness);
-                fr2 += (1 - f2) * max(NdotL, 0) * _Color;
+                fr2 += (1 - f2) * max(NdotL, 0) * baseColour;
 
                 // Frensel Transmission and Internal Reflection
                 float3 t12 = 1 - f1;
@@ -140,23 +154,23 @@ Shader "Custom/ClayShader"
                 float l = _L1Thickness * (1 / NdotLr + 1 / NdotVr);
                 float3 a = exp(-ABSORBTION_COEFFICIENT * l);
 
-                float3 finalColour = _Color * (fr1 + t12 * fr2 * a * t);
+                float3 finalColour = baseColour * (fr1 + t12 * fr2 * a * t);
 
                 // Fingerprints
-                float2 newUV = TRANSFORM_TEX(input.UV, _BumpTexture);
-                fixed4 fingerprints = tex2D(_BumpTexture, newUV) * _FingerprintStrength;
+                float2 newUV = TRANSFORM_TEX(input.UV, _FingerprintTexture);
+                fixed4 fingerprints = tex2D(_FingerprintTexture, newUV) * _FingerprintStrength;
                 finalColour += fingerprints;
 
                 // Ambient
                 float3 ambient = UNITY_LIGHTMODEL_AMBIENT;
+                finalColour += ambient;
 
-                return float4(finalColour + ambient, 1);
+                return float4(finalColour, 1);
             }
 
             float4 FragmentFunction(Input input) : SV_Target
             {
                 float3 mainColour = CalculatePBRLighting(input);
-
                 return float4(mainColour, 1.0f);
             }
             ENDCG

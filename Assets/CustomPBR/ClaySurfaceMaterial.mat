@@ -32,17 +32,25 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseColour:
+        m_Texture: {fileID: 2800000, guid: 0bce1b64dd61d7e46b9977d0f6be97b2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: e7c0bf238f7bd5245bbae07439c0eb71, type: 3}
+        m_Texture: {fileID: 2800000, guid: cd525c3653ce47a428a05772b12f7720, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpTexture:
         m_Texture: {fileID: 2800000, guid: 35ec27820cb01d04a96494fa0748b00e, type: 3}
         m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _Cube:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
@@ -58,6 +66,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FingerprintTexture:
+        m_Texture: {fileID: 2800000, guid: be2c2ed331f5bc640850e2e66630c881, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _HeightMap:
+        m_Texture: {fileID: 2800000, guid: 39fa94a9515929a40a07c2c3db439dea, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -98,6 +114,7 @@ Material:
     - _BaseReflectivity: 0.21
     - _Blend: 0
     - _BumpScale: 1
+    - _BumpStrength: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -107,7 +124,7 @@ Material:
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _F0: 0.28
-    - _FingerprintStrength: 0.03
+    - _FingerprintStrength: 0.025
     - _GlossMapScale: 0
     - _Glossiness: 0.433
     - _GlossyReflections: 0
@@ -135,7 +152,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.58431375, g: 0.58431375, b: 0.58431375, a: 1}
+    - _Color: {r: 0.764151, g: 0.12014948, b: 0.12014948, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _L1Color: {r: 1, g: 0.019422375, b: 0, a: 1}
     - _L2Color: {r: 0.17790854, g: 1, b: 0, a: 1}
