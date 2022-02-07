@@ -18,8 +18,12 @@ Shader "Custom/ClayShader"
         _FingerprintStrength("Fingerprint Strength", Range(0,1)) = 0.5
 
         [Header(Bumps and Indents)]
-        _BumpMap("Bumpmap", 2D) = "bump" {}
+        _BumpMap("Bump Map", 2D) = "bump" {}
         _BumpStrength("Bump Strength", Range(0,1)) = 0.5
+
+        [Header(Height Map)]
+        _HeightMap("Height Map", 2D) = "gray" {}
+        _HeightStrength("Height Strength", Range(0,1)) = 0.5
     }
         SubShader
     {
@@ -60,6 +64,10 @@ Shader "Custom/ClayShader"
             sampler2D _BumpMap;
             float4 _BumpMap_ST;
             half _BumpStrength;
+
+            sampler2D _HeightMap;
+            float4 _HeightMap_TexelSize;
+            half _HeightStrength;
 
             static const float PI = 3.14159265f;
             static const float3 ABSORBTION_COEFFICIENT = float3(0.0035f, 0.0004f, 0.0f);
@@ -110,6 +118,18 @@ Shader "Custom/ClayShader"
 
             float3 CalculatePBRLighting(Input input)
             {
+                // Normal Calculation
+                float2 du = float2(_HeightMap_TexelSize.x * 0.5, 0);
+                float u1 = tex2D(_HeightMap, input.UV - du);
+                float u2 = tex2D(_HeightMap, input.UV + du);
+
+                float2 dv = float2(0, _HeightMap_TexelSize.y * 0.5);
+                float v1 = tex2D(_HeightMap, input.UV - dv);
+                float v2 = tex2D(_HeightMap, input.UV + dv);
+
+                input.Normal += float3(u1 - u2, 1, v1 - v2);
+                input.Normal = normalize(input.Normal);
+
                 float3 N = normalize(input.Normal);
                 float3 V = normalize(input.ViewDirection);
                 float3 L = normalize(input.LightDirection);
@@ -164,6 +184,8 @@ Shader "Custom/ClayShader"
                 // Ambient
                 float3 ambient = UNITY_LIGHTMODEL_AMBIENT;
                 finalColour += ambient;
+
+                finalColour *= 1 - (tex2D(_HeightMap, input.UV) * _HeightStrength);
 
                 return float4(finalColour, 1);
             }

@@ -124,13 +124,14 @@ Material:
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _F0: 0.28
-    - _FingerprintStrength: 0.025
+    - _FingerprintStrength: 0
     - _GlossMapScale: 0
     - _Glossiness: 0.433
     - _GlossyReflections: 0
+    - _HeightStrength: 0.667
     - _L1F0: 0.21
-    - _L1Roughness: 0.51
-    - _L1Thickness: 2.1
+    - _L1Roughness: 0.456
+    - _L1Thickness: 3.13
     - _L2F0: 0.33
     - _L2Roughness: 1
     - _LayerOneRoughness: 1
