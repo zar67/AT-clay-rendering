@@ -155,8 +155,6 @@ Shader "Custom/ClayShader"
                     normal.z * input.Normal
                 );
 
-                //input.Normal += normal;
-
                 // Variables Calculation
                 float3 N = normalize(input.Normal);
                 float3 V = normalize(input.ViewDirection);
