@@ -137,8 +137,8 @@ Shader "Custom/ClayShader"
                 float v1 = tex2D(_HeightMap, input.UV - dv);
                 float v2 = tex2D(_HeightMap, input.UV + dv);
 
-                //input.Normal += float3(u1 - u2, 1, v1 - v2);
-                //input.Normal = normalize(input.Normal);
+                input.Normal += float3(u1 - u2, 1, v1 - v2);
+                input.Normal = normalize(input.Normal);
 
                 // Normals Calculation
                 float3 normal;
