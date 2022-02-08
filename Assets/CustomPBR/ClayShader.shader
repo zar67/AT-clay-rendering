@@ -38,11 +38,19 @@ Shader "Custom/ClayShader"
             #include "UnityCG.cginc"
             #include "UnityLightingCommon.cginc"
 
+            struct VertexData {
+                float4 Position : POSITION;
+                float3 Normal : NORMAL;
+                float4 Tangent : TANGENT;
+                float2 UV : TEXCOORD0;
+            };
+
             struct Input
             {
-                float2 UV : TEXCOORD0;
                 float4 Position : SV_POSITION;
-                float3 Normal : NORMAL;
+                float2 UV : TEXCOORD0;
+                float3 Normal : TEXCOORD1;
+                float4 Tangent : TEXCOORD2;
                 float3 ViewDirection : VIEW_DIRECTION;
                 float3 LightDirection : LIGHT_DIRECTION;
             };
@@ -72,12 +80,12 @@ Shader "Custom/ClayShader"
             static const float PI = 3.14159265f;
             static const float3 ABSORBTION_COEFFICIENT = float3(0.0035f, 0.0004f, 0.0f);
 
-            Input VertexFunction(appdata_base data)
+            Input VertexFunction(VertexData data)
             {
                 Input output;
 
-                output.Position = UnityObjectToClipPos(data.vertex);
-                output.UV = data.texcoord;
+                output.Position = UnityObjectToClipPos(data.Position);
+                output.UV = data.UV;
 
                 float3 worldPos = output.Position.xyz;
                 float3 viewDir = normalize(_WorldSpaceCameraPos.xyz - worldPos.xyz);
@@ -86,8 +94,10 @@ Shader "Custom/ClayShader"
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 output.LightDirection = lightDir;
 
-                half3 worldNormal = UnityObjectToWorldNormal(data.normal);
+                half3 worldNormal = UnityObjectToWorldNormal(data.Normal);
                 output.Normal = worldNormal;
+
+                output.Tangent = float4(UnityObjectToWorldDir(data.Tangent.xyz), data.Tangent.w);
 
                 return output;
             }
@@ -127,17 +137,25 @@ Shader "Custom/ClayShader"
                 float v1 = tex2D(_HeightMap, input.UV - dv);
                 float v2 = tex2D(_HeightMap, input.UV + dv);
 
-                input.Normal += float3(u1 - u2, 1, v1 - v2);
-                input.Normal = normalize(input.Normal);
+                //input.Normal += float3(u1 - u2, 1, v1 - v2);
+                //input.Normal = normalize(input.Normal);
 
                 // Normals Calculation
                 float3 normal;
                 normal.xy = tex2D(_BumpMap, input.UV).wy * 2 - 1;
                 normal.xy *= _BumpStrength;
                 normal.z = sqrt(1 - saturate(dot(normal.xy, normal.xy)));
-                normal = normal.xzy;
-                normal = normalize(normal);
-                input.Normal += normal;
+
+                float3 binormal = cross(input.Normal, input.Tangent.xyz) *
+                    (input.Tangent.w * unity_WorldTransformParams.w);
+
+                input.Normal = normalize(
+                    normal.x * input.Tangent +
+                    normal.y * binormal +
+                    normal.z * input.Normal
+                );
+
+                //input.Normal += normal;
 
                 // Variables Calculation
                 float3 N = normalize(input.Normal);
