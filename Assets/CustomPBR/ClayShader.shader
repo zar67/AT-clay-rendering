@@ -128,33 +128,6 @@ Shader "Custom/ClayShader"
 
             float3 CalculatePBRLighting(Input input)
             {
-                // Height Normals Calculation
-                float2 du = float2(_HeightMap_TexelSize.x * 0.5, 0);
-                float u1 = tex2D(_HeightMap, input.UV - du);
-                float u2 = tex2D(_HeightMap, input.UV + du);
-
-                float2 dv = float2(0, _HeightMap_TexelSize.y * 0.5);
-                float v1 = tex2D(_HeightMap, input.UV - dv);
-                float v2 = tex2D(_HeightMap, input.UV + dv);
-
-                input.Normal += float3(u1 - u2, 1, v1 - v2);
-                input.Normal = normalize(input.Normal);
-
-                // Normals Calculation
-                float3 normal;
-                normal.xy = tex2D(_BumpMap, input.UV).wy * 2 - 1;
-                normal.xy *= _BumpStrength;
-                normal.z = sqrt(1 - saturate(dot(normal.xy, normal.xy)));
-
-                float3 binormal = cross(input.Normal, input.Tangent.xyz) *
-                    (input.Tangent.w * unity_WorldTransformParams.w);
-
-                input.Normal = normalize(
-                    normal.x * input.Tangent +
-                    normal.y * binormal +
-                    normal.z * input.Normal
-                );
-
                 // Variables Calculation
                 float3 N = normalize(input.Normal);
                 float3 V = normalize(input.ViewDirection);
@@ -216,8 +189,43 @@ Shader "Custom/ClayShader"
                 return float4(finalColour, 1);
             }
 
+            float3 NormalMapping(Input input)
+            {
+                float3 finalNormal = input.Normal;
+
+                // Height Normals Calculation
+                float2 du = float2(_HeightMap_TexelSize.x * 0.5, 0);
+                float u1 = tex2D(_HeightMap, input.UV - du);
+                float u2 = tex2D(_HeightMap, input.UV + du);
+
+                float2 dv = float2(0, _HeightMap_TexelSize.y * 0.5);
+                float v1 = tex2D(_HeightMap, input.UV - dv);
+                float v2 = tex2D(_HeightMap, input.UV + dv);
+
+                finalNormal += float3(u1 - u2, 1, v1 - v2);
+                finalNormal = normalize(input.Normal);
+
+                // Normals Calculation
+                float3 normal;
+                normal.xy = tex2D(_BumpMap, input.UV).wy * 2 - 1;
+                normal.xy *= _BumpStrength;
+                normal.z = sqrt(1 - saturate(dot(normal.xy, normal.xy)));
+
+                float3 binormal = cross(input.Normal, input.Tangent.xyz) *
+                    (input.Tangent.w * unity_WorldTransformParams.w);
+
+                finalNormal = normalize(
+                    normal.x * input.Tangent +
+                    normal.y * binormal +
+                    normal.z * input.Normal
+                );
+
+                return finalNormal;
+            }
+
             float4 FragmentFunction(Input input) : SV_Target
             {
+                input.Normal = NormalMapping(input);
                 float3 mainColour = CalculatePBRLighting(input);
                 return float4(mainColour, 1.0f);
             }
