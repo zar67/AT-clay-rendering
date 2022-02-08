@@ -19,7 +19,7 @@ Shader "Custom/ClayShader"
 
         [Header(Bumps and Indents)]
         _BumpMap("Bump Map", 2D) = "bump" {}
-        _BumpStrength("Bump Strength", Range(0,1)) = 0.5
+        _BumpStrength("Bump Strength", Range(0,2)) = 0.5
 
         [Header(Height Map)]
         _HeightMap("Height Map", 2D) = "gray" {}
@@ -118,7 +118,7 @@ Shader "Custom/ClayShader"
 
             float3 CalculatePBRLighting(Input input)
             {
-                // Normal Calculation
+                // Height Normals Calculation
                 float2 du = float2(_HeightMap_TexelSize.x * 0.5, 0);
                 float u1 = tex2D(_HeightMap, input.UV - du);
                 float u2 = tex2D(_HeightMap, input.UV + du);
@@ -130,6 +130,16 @@ Shader "Custom/ClayShader"
                 input.Normal += float3(u1 - u2, 1, v1 - v2);
                 input.Normal = normalize(input.Normal);
 
+                // Normals Calculation
+                float3 normal;
+                normal.xy = tex2D(_BumpMap, input.UV).wy * 2 - 1;
+                normal.xy *= _BumpStrength;
+                normal.z = sqrt(1 - saturate(dot(normal.xy, normal.xy)));
+                normal = normal.xzy;
+                normal = normalize(normal);
+                input.Normal += normal;
+
+                // Variables Calculation
                 float3 N = normalize(input.Normal);
                 float3 V = normalize(input.ViewDirection);
                 float3 L = normalize(input.LightDirection);

@@ -114,7 +114,7 @@ Material:
     - _BaseReflectivity: 0.21
     - _Blend: 0
     - _BumpScale: 1
-    - _BumpStrength: 1
+    - _BumpStrength: 2
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -124,16 +124,16 @@ Material:
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _F0: 0.28
-    - _FingerprintStrength: 0
+    - _FingerprintStrength: 0.03
     - _GlossMapScale: 0
     - _Glossiness: 0.433
     - _GlossyReflections: 0
-    - _HeightStrength: 0.667
+    - _HeightStrength: 0.43
     - _L1F0: 0.21
-    - _L1Roughness: 0.456
+    - _L1Roughness: 0.48
     - _L1Thickness: 3.13
     - _L2F0: 0.33
-    - _L2Roughness: 1
+    - _L2Roughness: 0.72
     - _LayerOneRoughness: 1
     - _LayerOneThickness: 100
     - _LayerTwoRoughness: 0.29
