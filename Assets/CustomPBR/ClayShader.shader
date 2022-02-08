@@ -19,11 +19,11 @@ Shader "Custom/ClayShader"
 
         [Header(Bumps and Indents)]
         _BumpMap("Bump Map", 2D) = "bump" {}
-        _BumpStrength("Bump Strength", Range(0,2)) = 0.5
+        _BumpStrength("Bump Strength", Range(0,5)) = 0.5
 
         [Header(Height Map)]
         _HeightMap("Height Map", 2D) = "gray" {}
-        _HeightStrength("Height Strength", Range(0,1)) = 0.5
+        _HeightStrength("Height Strength", Range(0,5)) = 0.5
     }
         SubShader
     {

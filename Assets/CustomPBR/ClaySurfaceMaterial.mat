@@ -114,7 +114,7 @@ Material:
     - _BaseReflectivity: 0.21
     - _Blend: 0
     - _BumpScale: 1
-    - _BumpStrength: 2
+    - _BumpStrength: 2.03
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -128,7 +128,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0.433
     - _GlossyReflections: 0
-    - _HeightStrength: 0.43
+    - _HeightStrength: 0.28
     - _L1F0: 0.21
     - _L1Roughness: 0.48
     - _L1Thickness: 3.13
