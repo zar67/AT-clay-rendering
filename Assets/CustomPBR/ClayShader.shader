@@ -3,7 +3,8 @@ Shader "Custom/ClayShader"
     Properties
     {
         [Header(Properties)]
-        _BaseColour("Base Colour", 2D) = "white" {}
+        _BaseTexture("Base Texture", 2D) = "white" {}
+        _BaseColour("Base Colour", Color) = (1,1,1,1)
         _F0("Base Reflectivity", Range(0,1)) = 0.5
 
         [Header(Top Layer)]
@@ -55,8 +56,10 @@ Shader "Custom/ClayShader"
                 float3 LightDirection : LIGHT_DIRECTION;
             };
 
-            sampler2D _BaseColour;
-            float4 _BaseColour_ST;
+            sampler2D _BaseTexture;
+            float4 _BaseTexture_ST;
+
+            fixed4 _BaseColour;
 
             float _F0;
 
@@ -150,8 +153,10 @@ Shader "Custom/ClayShader"
                 float VrdotHr = dot(Vr, Hr);
 
                 // Base Colour
-                float2 baseColourUV = TRANSFORM_TEX(input.UV, _BaseColour);
-                fixed4 baseColour = tex2D(_BaseColour, baseColourUV);
+                float2 baseTextureUV = TRANSFORM_TEX(input.UV, _BaseTexture);
+                fixed4 baseTexture = tex2D(_BaseTexture, baseTextureUV);
+                baseTexture = dot(baseTexture.rgb, float3(0.3, 0.59, 0.11));
+                float3 finalColour = baseTexture * _BaseColour.rgb;
 
                 // Top Layer
                 float3 f1 = Fresnel(VdotH, _F0, _F0, _L1Roughness);
@@ -162,7 +167,7 @@ Shader "Custom/ClayShader"
                 float3 f2 = Fresnel(VrdotHr, _F0, _F0, _L2Roughness);
                 float g2 = Geometry(NdotVr, NdotHr, VrdotHr, NdotLr);
                 float3 fr2 = TorranceSparrow(NdotLr, NdotVr, NdotHr, VrdotHr, _F0, _F0, _L2Roughness);
-                fr2 += (1 - f2) * max(NdotL, 0) * baseColour;
+                fr2 += (1 - f2) * max(NdotL, 0) * finalColour;
 
                 // Frensel Transmission and Internal Reflection
                 float3 t12 = 1 - f1;
@@ -173,7 +178,7 @@ Shader "Custom/ClayShader"
                 float l = _L1Thickness * (1 / NdotLr + 1 / NdotVr);
                 float3 a = exp(-ABSORBTION_COEFFICIENT * l);
 
-                float3 finalColour = baseColour * (fr1 + t12 * fr2 * a * t);
+                finalColour *= (fr1 + t12 * fr2 * a * t);
 
                 // Fingerprints
                 float2 newUV = TRANSFORM_TEX(input.UV, _FingerprintTexture);

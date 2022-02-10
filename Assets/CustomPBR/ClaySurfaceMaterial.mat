@@ -40,6 +40,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _BaseTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: cd525c3653ce47a428a05772b12f7720, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -114,7 +118,7 @@ Material:
     - _BaseReflectivity: 0.21
     - _Blend: 0
     - _BumpScale: 1
-    - _BumpStrength: 3.33
+    - _BumpStrength: 1.46
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -124,14 +128,14 @@ Material:
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _F0: 1
-    - _FingerprintStrength: 0.025
+    - _FingerprintStrength: 0
     - _GlossMapScale: 0
     - _Glossiness: 0.433
     - _GlossyReflections: 0
-    - _HeightStrength: 0.28
+    - _HeightStrength: 0.27
     - _L1F0: 0.21
-    - _L1Roughness: 0.607
-    - _L1Thickness: 3.68
+    - _L1Roughness: 0.67
+    - _L1Thickness: 2.48
     - _L2F0: 0.33
     - _L2Roughness: 1
     - _LayerOneRoughness: 1
@@ -153,6 +157,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColour: {r: 0.62678236, g: 0.8962264, b: 0.6143941, a: 1}
     - _Color: {r: 0.764151, g: 0.12014948, b: 0.12014948, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _L1Color: {r: 1, g: 0.019422375, b: 0, a: 1}
